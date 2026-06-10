@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YCAPSchool Waste Management</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 untuk Notifikasi Modern -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Kustomisasi Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+        .nav-link.active { background-color: #ecfdf5; color: #059669; border-right: 4px solid #10b981; }
+    </style>
+    
+    <script>
+        // Konfigurasi Tema Tailwind
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        eco: {
+                            light: '#d1fae5',
+                            DEFAULT: '#10b981',
+                            dark: '#047857',
+                        },
+                        ocean: {
+                            light: '#dbeafe',
+                            DEFAULT: '#3b82f6',
+                            dark: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden text-gray-800">
+
+    <!-- Datalist untuk Autocomplete Nama Siswa -->
+    <datalist id="daftar-nama-siswa"></datalist>
+
+    <!-- Sidebar Mobile Toggle -->
+    <div class="md:hidden fixed top-0 left-0 w-full bg-white p-4 flex justify-between items-center z-50 shadow-md">
+        <div class="flex items-center gap-2">
+            <img src="https://media.licdn.com/dms/image/v2/C510BAQH6bq4Be8_qjg/company-logo_200_200/company-logo_200_200/0/1630614589464/childaidpapua_logo?e=2147483647&v=beta&t=cP01svc-RGmIhyUAXqWhGqtO_FmmCI6jdD4HRUNuuiE" alt="Logo" class="w-8 h-8 rounded-full">
+            <span class="font-bold text-gray-800">YCAPSchool</span>
+        </div>
+        <button id="mobile-menu-btn" class="text-gray-600 focus:outline-none">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-white w-64 h-full shadow-lg flex flex-col transition-transform transform -translate-x-full md:translate-x-0 fixed md:relative z-40 top-0 pt-16 md:pt-0">
+        <div class="p-6 border-b border-gray-100 hidden md:flex items-center gap-3">
+            <img src="https://media.licdn.com/dms/image/v2/C510BAQH6bq4Be8_qjg/company-logo_200_200/company-logo_200_200/0/1630614589464/childaidpapua_logo?e=2147483647&v=beta&t=cP01svc-RGmIhyUAXqWhGqtO_FmmCI6jdD4HRUNuuiE" alt="Logo" class="w-10 h-10 rounded-full">
+            <div>
+                <h1 class="font-bold text-lg text-gray-800 leading-tight">YCAPSchool</h1>
+                <p class="text-xs text-eco-dark font-medium">Waste Management</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li><a href="#" onclick="switchPage('dashboard')" id="nav-dashboard" class="nav-link flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 transition active"><i class="fa-solid fa-chart-pie w-5"></i> Dashboard</a></li>
+                <li><a href="#" onclick="switchPage('input')" id="nav-input" class="nav-link flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 transition"><i class="fa-solid fa-plus-circle w-5"></i> Input Sampah</a></li>
+                <li><a href="#" onclick="switchPage('data')" id="nav-data" class="nav-link flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 transition"><i class="fa-solid fa-table-list w-5"></i> Data Sampah</a></li>
+                <li><a href="#" onclick="switchPage('leaderboard')" id="nav-leaderboard" class="nav-link flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 transition"><i class="fa-solid fa-trophy w-5"></i> Leaderboard</a></li>
+                <li><a href="#" onclick="switchPage('statistik')" id="nav-statistik" class="nav-link flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 transition"><i class="fa-solid fa-chart-line w-5"></i> Statistik</a></li>
+                <li><a href="#" onclick="switchPage('penghargaan')" id="nav-penghargaan" class="nav-link flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 transition"><i class="fa-solid fa-medal w-5"></i> Penghargaan</a></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-100 text-center text-xs text-gray-400">
+            &copy; 2026 YCAPSchool
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto w-full pt-16 md:pt-0">
+        <div class="p-4 md:p-8 max-w-7xl mx-auto">
+            
+            <!-- PAGE: DASHBOARD -->
+            <section id="page-dashboard" class="page-section">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Dashboard Ringkasan</h2>
+                
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-eco">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Sampah Terkumpul</p>
+                                <h3 class="text-3xl font-bold text-gray-800" id="dash-total-weight">0 <span class="text-lg text-gray-500 font-normal">kg</span></h3>
+                            </div>
+                            <div class="w-12 h-12 bg-eco-light text-eco rounded-full flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-ocean">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Poin Dihasilkan</p>
+                                <h3 class="text-3xl font-bold text-gray-800" id="dash-total-points">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-ocean-light text-ocean rounded-full flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-yellow-400">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Transaksi</p>
+                                <h3 class="text-3xl font-bold text-gray-800" id="dash-total-tx">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-right-left"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-purple-500">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Kelas Berpartisipasi</p>
+                                <h3 class="text-3xl font-bold text-gray-800" id="dash-total-classes">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-users-viewfinder"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-700 mb-4">Tren Sampah (7 Hari Terakhir)</h3>
+                        <canvas id="dashLineChart" height="250"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-700 mb-4">Komposisi Jenis Sampah</h3>
+                        <div class="w-full h-64 flex justify-center">
+                            <canvas id="dashDoughnutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: INPUT SAMPAH -->
+            <section id="page-input" class="page-section hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Input Data Sampah</h2>
+                
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 max-w-2xl mx-auto">
+                    <div class="mb-6 bg-ocean-light text-ocean-dark p-4 rounded-lg flex items-start gap-3">
+                        <i class="fa-solid fa-circle-info mt-1"></i>
+                        <div class="text-sm">
+                            <p class="font-bold mb-1">Informasi Poin per Kg:</p>
+                            <ul class="grid grid-cols-2 gap-x-4 gap-y-1">
+                                <li>📄 Kertas: 10 Poin</li>
+                                <li>🧴 Plastik: 15 Poin</li>
+                                <li>🥫 Logam: 20 Poin</li>
+                                <li>🍎 Organik: 5 Poin</li>
+                                <li>🔋 Anorganik: 8 Poin</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form id="form-input-sampah" onsubmit="handleInputSubmit(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Siswa / Penyetor</label>
+                                <input type="text" id="input-nama" list="daftar-nama-siswa" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-eco focus:border-eco outline-none transition" placeholder="Ketik atau pilih nama siswa...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                                <select id="input-kelas" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-eco focus:border-eco outline-none transition">
+                                    <option value="" disabled selected>Pilih Kelas</option>
+                                    <optgroup label="SMP / Sederajat">
+                                        <option value="VII A">Kelas VII A</option>
+                                        <option value="VII B">Kelas VII B</option>
+                                        <option value="VIII A">Kelas VIII A</option>
+                                        <option value="VIII B">Kelas VIII B</option>
+                                        <option value="IX A">Kelas IX A</option>
+                                        <option value="IX B">Kelas IX B</option>
+                                    </optgroup>
+                                    <optgroup label="SMA / Sederajat">
+                                        <option value="X A">Kelas X A</option>
+                                        <option value="X B">Kelas X B</option>
+                                        <option value="XI A">Kelas XI A</option>
+                                        <option value="XI B">Kelas XI B</option>
+                                        <option value="XII A">Kelas XII A</option>
+                                        <option value="XII B">Kelas XII B</option>
+                                    </optgroup>
+                                    <optgroup label="Staf & Pengajar">
+                                        <option value="Guru/Staf">Guru / Staf</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Sampah</label>
+                                <select id="input-jenis" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-eco focus:border-eco outline-none transition">
+                                    <option value="" disabled selected>Pilih Jenis</option>
+                                    <option value="Organik">Organik (Daun, Sisa Makanan)</option>
+                                    <option value="Anorganik">Anorganik (Karet, Kain)</option>
+                                    <option value="Plastik">Plastik (Botol, Kemasan)</option>
+                                    <option value="Kertas">Kertas (Kardus, Buku)</option>
+                                    <option value="Logam">Logam (Kaleng, Besi)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Berat Sampah (kg)</label>
+                                <input type="number" id="input-berat" step="0.1" min="0.1" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-eco focus:border-eco outline-none transition" placeholder="Cth: 1.5">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Setor</label>
+                                <input type="date" id="input-tanggal" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-eco focus:border-eco outline-none transition">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-eco hover:bg-eco-dark text-white font-bold py-3 px-4 rounded-lg shadow transition flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-save"></i> Simpan Data Sampah
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- PAGE: DATA SAMPAH -->
+            <section id="page-data" class="page-section hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Riwayat Data Sampah</h2>
+                
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <!-- Filters -->
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fa-solid fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="filter-search" oninput="renderTable()" class="pl-10 w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco focus:border-eco outline-none" placeholder="Cari nama siswa...">
+                            </div>
+                        </div>
+                        <select id="filter-kelas" onchange="renderTable()" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco focus:border-eco outline-none">
+                            <option value="all">Semua Kelas</option>
+                            <option value="VII A">VII A</option>
+                            <option value="VII B">VII B</option>
+                            <option value="VIII A">VIII A</option>
+                            <option value="VIII B">VIII B</option>
+                            <option value="IX A">IX A</option>
+                            <option value="IX B">IX B</option>
+                            <option value="X A">X A</option>
+                            <option value="X B">X B</option>
+                            <option value="XI A">XI A</option>
+                            <option value="XI B">XI B</option>
+                            <option value="XII A">XII A</option>
+                            <option value="XII B">XII B</option>
+                            <option value="Guru/Staf">Guru/Staf</option>
+                        </select>
+                        <select id="filter-jenis" onchange="renderTable()" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco focus:border-eco outline-none">
+                            <option value="all">Semua Jenis</option>
+                            <option value="Organik">Organik</option>
+                            <option value="Anorganik">Anorganik</option>
+                            <option value="Plastik">Plastik</option>
+                            <option value="Kertas">Kertas</option>
+                            <option value="Logam">Logam</option>
+                        </select>
+                        <input type="date" id="filter-tanggal" onchange="renderTable()" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco focus:border-eco outline-none">
+                        <button onclick="resetFilters()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition" title="Reset Filter">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 text-sm border-b border-gray-200">
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Jenis Sampah</th>
+                                    <th class="p-3">Berat (kg)</th>
+                                    <th class="p-3">Poin</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="text-sm">
+                                <!-- Baris tabel akan di-render oleh JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="table-empty" class="hidden flex-col items-center justify-center py-10 text-gray-400">
+                        <i class="fa-solid fa-box-open text-4xl mb-3"></i>
+                        <p>Tidak ada data yang ditemukan.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: LEADERBOARD -->
+            <section id="page-leaderboard" class="page-section hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Leaderboard & Peringkat</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Top Siswa -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-ocean text-white p-4 flex items-center gap-3">
+                            <i class="fa-solid fa-user-astronaut text-2xl"></i>
+                            <h3 class="font-bold text-lg">Top 10 Siswa (Poin Terbanyak)</h3>
+                        </div>
+                        <div class="p-0">
+                            <ul id="list-top-siswa" class="divide-y divide-gray-100">
+                                <!-- Di-render oleh JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Top Kelas -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-eco text-white p-4 flex items-center gap-3">
+                            <i class="fa-solid fa-school text-2xl"></i>
+                            <h3 class="font-bold text-lg">Peringkat Kelas (Total Berat Sampah)</h3>
+                        </div>
+                        <div class="p-0">
+                            <ul id="list-top-kelas" class="divide-y divide-gray-100">
+                                <!-- Di-render oleh JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: STATISTIK -->
+            <section id="page-statistik" class="page-section hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Statistik Lengkap</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Chart Jenis Sampah -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-700 mb-4 text-center">Persentase Jenis Sampah</h3>
+                        <div class="w-full h-72 flex justify-center">
+                            <canvas id="statPieChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Perbandingan Kelas -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-700 mb-4 text-center">Perbandingan Sampah Antar Kelas (kg)</h3>
+                        <div class="w-full h-72">
+                            <canvas id="statBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Bulanan / Tren -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-700 mb-4">Tren Pengumpulan Sampah Harian</h3>
+                    <div class="w-full h-80">
+                        <canvas id="statLineChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: PENGHARGAAN -->
+            <section id="page-penghargaan" class="page-section hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Penghargaan Lingkungan</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="awards-container">
+                    <!-- Di-render oleh JS -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modal Edit Data -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div class="bg-eco text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg">Edit Data Sampah</h3>
+                <button onclick="closeEditModal()" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <form id="form-edit-sampah" onsubmit="handleEditSubmit(event)">
+                    <input type="hidden" id="edit-id">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Siswa</label>
+                            <input type="text" id="edit-nama" list="daftar-nama-siswa" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                            <select id="edit-kelas" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco outline-none">
+                                <option value="VII A">Kelas VII A</option>
+                                <option value="VII B">Kelas VII B</option>
+                                <option value="VIII A">Kelas VIII A</option>
+                                <option value="VIII B">Kelas VIII B</option>
+                                <option value="IX A">Kelas IX A</option>
+                                <option value="IX B">Kelas IX B</option>
+                                <option value="X A">Kelas X A</option>
+                                <option value="X B">Kelas X B</option>
+                                <option value="XI A">Kelas XI A</option>
+                                <option value="XI B">Kelas XI B</option>
+                                <option value="XII A">Kelas XII A</option>
+                                <option value="XII B">Kelas XII B</option>
+                                <option value="Guru/Staf">Guru/Staf</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Sampah</label>
+                            <select id="edit-jenis" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco outline-none">
+                                <option value="Organik">Organik</option>
+                                <option value="Anorganik">Anorganik</option>
+                                <option value="Plastik">Plastik</option>
+                                <option value="Kertas">Kertas</option>
+                                <option value="Logam">Logam</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Berat Sampah (kg)</label>
+                            <input type="number" id="edit-berat" step="0.1" min="0.1" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                            <input type="date" id="edit-tanggal" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-eco outline-none">
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" onclick="closeEditModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition">Batal</button>
+                        <button type="submit" class="bg-eco hover:bg-eco-dark text-white font-medium py-2 px-4 rounded-lg transition">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT -->
+    <script>
+        // --- KONFIGURASI DAN STATE ---
+        const POINTS_RULES = {
+            'Kertas': 10,
+            'Plastik': 15,
+            'Logam': 20,
+            'Organik': 5,
+            'Anorganik': 8
+        };
+
+        const COLOR_PALETTE = {
+            'Organik': '#4ade80',    // Hijau muda
+            'Anorganik': '#94a3b8',  // Abu-abu
+            'Plastik': '#3b82f6',    // Biru
+            'Kertas': '#facc15',     // Kuning
+            'Logam': '#64748b'       // Slate
+        };
+
+        // Daftar Nama Siswa Hasil Ekstraksi Gambar
+        const DAFTAR_SISWA = [
+            "Sintike Kaloly", "Neda Rudisman", "Eta Siori", "Vence Siori", "Natan Dimara", "Putri Dimara",
+            "Leberina Mambrasar", "Riko Mambrasar", "Herlina Dimara", "Melvin Kalami", "Yudris Mundo", "Faisal Tanjung", "Febri Dimara",
+            "Mery Mambrasar", "Alvaro Dimara", "Shonia Dimara", "Ledrik Mamarodi", "Jeni Mamarodi", "Geboy Mayor", "Mesly Mamabrasar", "Feroca Making", "Paskalita Kambuh", "Gerson Wawiyai", "Niko Mambrasar",
+            "Neta Mambrasar", "Frans Werinusa", "Marsia Werinusa", "Markus Dimara", "Sari Abaire", "Bram Sauyai", "Fanita Burdam", "Atin Bonsapia", "Elkanus Ambafen",
+            "Mark Hara", "Febi Sauyai", "Rio Dimara", "Mira Sauyai", "Mariantina Warope", "Diktri Umpain", "Aris Dimara", "Hengky Mayor", "Donal Gaman", "Charles Kabes", "Lohini Arwakon",
+            "Yuyun Rudisman", "Rode Ayelo", "Brian Manuk", "Naindes Sauyai", "Audea Arwakon", "Marfel Mambrasar", "Hugo Sanadi", "Beto Burdam", "Mutiara Ayorbaba", "Elliz Arwakon", "Luis Amunauw",
+            "Uziel Mambraku", "David Mambrasar", "Maryane Mambraku", "Delyla Awom"
+        ];
+
+        let wasteData = [];
+        let charts = {}; // Menyimpan instance Chart.js agar bisa dihancurkan (destroy) saat re-render
+
+        // --- INISIALISASI ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default date to today for inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('input-tanggal').value = today;
+
+            // Setup Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            mobileBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            // Populate Datalist Autocomplete
+            populateDatalist();
+
+            // Load data
+            loadData();
+            
+            // Switch to initial page
+            switchPage('dashboard');
+        });
+
+        // --- DATA AUTOCMPLETE ---
+        function populateDatalist() {
+            const datalist = document.getElementById('daftar-nama-siswa');
+            datalist.innerHTML = '';
+            DAFTAR_SISWA.sort().forEach(siswa => {
+                const option = document.createElement('option');
+                option.value = siswa;
+                datalist.appendChild(option);
+            });
+        }
+
+        // --- DATA MANAGEMENT ---
+        function loadData() {
+            const stored = localStorage.getItem('ycapSchoolData');
+            if (stored) {
+                wasteData = JSON.parse(stored);
+            } else {
+                // Generate Dummy Data menggunakan daftar nama siswa baru
+                generateDummyData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('ycapSchoolData', JSON.stringify(wasteData));
+            updateAllViews();
+        }
+
+        function generateDummyData() {
+            const dummy = [];
+            // Penyesuaian ke Kelas Baru (Romawi VII - XII)
+            const classes = [
+                'VII A', 'VII B', 
+                'VIII A', 'VIII B', 
+                'IX A', 'IX B', 
+                'X A', 'X B', 
+                'XI A', 'XI B', 
+                'XII A', 'XII B'
+            ];
+            const types = Object.keys(POINTS_RULES);
+            
+            let today = new Date();
+            
+            for(let i=0; i<60; i++) {
+                let d = new Date(today);
+                d.setDate(d.getDate() - Math.floor(Math.random() * 14)); // Data 14 hari terakhir
+                
+                let type = types[Math.floor(Math.random() * types.length)];
+                let weight = (Math.random() * 4 + 0.5).toFixed(1); // 0.5kg - 4.5kg
+                let points = POINTS_RULES[type] * parseFloat(weight);
+
+                dummy.push({
+                    id: 'dum_' + Date.now() + Math.random(),
+                    nama: DAFTAR_SISWA[Math.floor(Math.random() * DAFTAR_SISWA.length)],
+                    kelas: classes[Math.floor(Math.random() * classes.length)],
+                    jenis: type,
+                    berat: parseFloat(weight),
+                    tanggal: d.toISOString().split('T')[0],
+                    poin: Math.round(points)
+                });
+            }
+            wasteData = dummy;
+            localStorage.setItem('ycapSchoolData', JSON.stringify(wasteData));
+        }
+
+        function calculatePoints(jenis, berat) {
+            return Math.round(POINTS_RULES[jenis] * parseFloat(berat));
+        }
+
+        // --- NAVIGASI ---
+        function switchPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+            // Remove active class from nav
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            
+            // Show target page
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            // Add active class
+            document.getElementById(`nav-${pageId}`).classList.add('active');
+
+            // Close mobile sidebar if open
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+
+            // Update views based on page
+            updateAllViews();
+        }
+
+        function updateAllViews() {
+            renderDashboard();
+            renderTable();
+            renderLeaderboard();
+            renderStats();
+            renderAwards();
+        }
+
+        // --- CRUD OPERATIONS ---
+        function handleInputSubmit(e) {
+            e.preventDefault();
+            
+            const nama = document.getElementById('input-nama').value.trim();
+            const kelas = document.getElementById('input-kelas').value;
+            const jenis = document.getElementById('input-jenis').value;
+            const berat = parseFloat(document.getElementById('input-berat').value);
+            const tanggal = document.getElementById('input-tanggal').value;
+
+            if(!nama || !kelas || !jenis || !berat || !tanggal) return;
+
+            const newData = {
+                id: 'id_' + Date.now(),
+                nama,
+                kelas,
+                jenis,
+                berat,
+                tanggal,
+                poin: calculatePoints(jenis, berat)
+            };
+
+            wasteData.push(newData);
+            saveData();
+
+            // Reset form (kecuali tanggal)
+            document.getElementById('input-nama').value = '';
+            document.getElementById('input-berat').value = '';
+            
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data sampah berhasil dicatat. Poin ditambahkan!',
+                icon: 'success',
+                confirmButtonColor: '#10b981'
+            });
+        }
+
+        function deleteRecord(id) {
+            Swal.fire({
+                title: 'Hapus Data?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    wasteData = wasteData.filter(item => item.id !== id);
+                    saveData();
+                    Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
+                }
+            });
+        }
+
+        function openEditModal(id) {
+            const data = wasteData.find(item => item.id === id);
+            if(!data) return;
+
+            document.getElementById('edit-id').value = data.id;
+            document.getElementById('edit-nama').value = data.nama;
+            document.getElementById('edit-kelas').value = data.kelas;
+            document.getElementById('edit-jenis').value = data.jenis;
+            document.getElementById('edit-berat').value = data.berat;
+            document.getElementById('edit-tanggal').value = data.tanggal;
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        function handleEditSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const index = wasteData.findIndex(item => item.id === id);
+            
+            if(index !== -1) {
+                const jenis = document.getElementById('edit-jenis').value;
+                const berat = parseFloat(document.getElementById('edit-berat').value);
+
+                wasteData[index] = {
+                    id: id,
+                    nama: document.getElementById('edit-nama').value.trim(),
+                    kelas: document.getElementById('edit-kelas').value,
+                    jenis: jenis,
+                    berat: berat,
+                    tanggal: document.getElementById('edit-tanggal').value,
+                    poin: calculatePoints(jenis, berat)
+                };
+
+                saveData();
+                closeEditModal();
+                Swal.fire('Diperbarui!', 'Data berhasil diubah.', 'success');
+            }
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable() {
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const fKelas = document.getElementById('filter-kelas').value;
+            const fJenis = document.getElementById('filter-jenis').value;
+            const fTanggal = document.getElementById('filter-tanggal').value;
+
+            const tbody = document.getElementById('table-body');
+            const emptyState = document.getElementById('table-empty');
+            tbody.innerHTML = '';
+
+            let filtered = wasteData.filter(item => {
+                const matchSearch = item.nama.toLowerCase().includes(search);
+                const matchKelas = fKelas === 'all' || item.kelas === fKelas;
+                const matchJenis = fJenis === 'all' || item.jenis === fJenis;
+                const matchTanggal = !fTanggal || item.tanggal === fTanggal;
+                return matchSearch && matchKelas && matchJenis && matchTanggal;
+            });
+
+            // Sort by date desc
+            filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            if(filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+
+                filtered.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-gray-100 hover:bg-gray-50 transition";
+                    
+                    // Format Date
+                    const dateObj = new Date(item.tanggal);
+                    const formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                    // Type Badge setup
+                    let typeColor = 'bg-gray-100 text-gray-700';
+                    if(item.jenis === 'Organik') typeColor = 'bg-green-100 text-green-700';
+                    if(item.jenis === 'Plastik') typeColor = 'bg-blue-100 text-blue-700';
+                    if(item.jenis === 'Kertas') typeColor = 'bg-yellow-100 text-yellow-700';
+                    if(item.jenis === 'Logam') typeColor = 'bg-slate-200 text-slate-700';
+                    if(item.jenis === 'Anorganik') typeColor = 'bg-gray-200 text-gray-800';
+
+                    tr.innerHTML = `
+                        <td class="p-3 text-gray-600">${formattedDate}</td>
+                        <td class="p-3 font-medium text-gray-800">${item.nama}</td>
+                        <td class="p-3 text-gray-600">${item.kelas}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-medium ${typeColor}">${item.jenis}</span></td>
+                        <td class="p-3 text-gray-800 font-medium">${item.berat} kg</td>
+                        <td class="p-3 text-eco font-bold">+${item.poin}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="openEditModal('${item.id}')" class="text-blue-500 hover:text-blue-700 p-1 mx-1 transition"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteRecord('${item.id}')" class="text-red-500 hover:text-red-700 p-1 mx-1 transition"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-search').value = '';
+            document.getElementById('filter-kelas').value = 'all';
+            document.getElementById('filter-jenis').value = 'all';
+            document.getElementById('filter-tanggal').value = '';
+            renderTable();
+        }
+
+        // --- RENDER DASHBOARD ---
+        function renderDashboard() {
+            let totalWeight = 0;
+            let totalPoints = 0;
+            let classesSet = new Set();
+
+            wasteData.forEach(item => {
+                totalWeight += item.berat;
+                totalPoints += item.poin;
+                classesSet.add(item.kelas);
+            });
+
+            document.getElementById('dash-total-weight').innerHTML = `${totalWeight.toFixed(1)} <span class="text-lg text-gray-500 font-normal">kg</span>`;
+            document.getElementById('dash-total-points').innerText = totalPoints.toLocaleString('id-ID');
+            document.getElementById('dash-total-tx').innerText = wasteData.length;
+            document.getElementById('dash-total-classes').innerText = classesSet.size;
+
+            // Render mini charts only if Dashboard is visible
+            if(!document.getElementById('page-dashboard').classList.contains('hidden')) {
+                renderMiniCharts();
+            }
+        }
+
+        // --- RENDER LEADERBOARD ---
+        function renderLeaderboard() {
+            // Group by Student
+            let studentMap = {};
+            // Group by Class
+            let classMap = {};
+
+            wasteData.forEach(item => {
+                // For Student
+                const key = item.nama + ' - ' + item.kelas;
+                if(!studentMap[key]) {
+                    studentMap[key] = { nama: item.nama, kelas: item.kelas, poin: 0, berat: 0 };
+                }
+                studentMap[key].poin += item.poin;
+                studentMap[key].berat += item.berat;
+
+                // For Class
+                if(!classMap[item.kelas]) {
+                    classMap[item.kelas] = { kelas: item.kelas, berat: 0, poin: 0 };
+                }
+                classMap[item.kelas].berat += item.berat;
+                classMap[item.kelas].poin += item.poin;
+            });
+
+            // Sort & Render Students (Top 10 by Points)
+            const topStudents = Object.values(studentMap).sort((a, b) => b.poin - a.poin).slice(0, 10);
+            const listSiswa = document.getElementById('list-top-siswa');
+            listSiswa.innerHTML = '';
+            
+            if(topStudents.length === 0) listSiswa.innerHTML = '<li class="p-4 text-center text-gray-400">Belum ada data</li>';
+            
+            topStudents.forEach((st, index) => {
+                let badge = '';
+                if(index === 0) badge = '<i class="fa-solid fa-medal text-yellow-400 text-xl"></i>';
+                else if(index === 1) badge = '<i class="fa-solid fa-medal text-gray-400 text-xl"></i>';
+                else if(index === 2) badge = '<i class="fa-solid fa-medal text-orange-400 text-xl"></i>';
+                else badge = `<span class="text-gray-400 font-bold w-6 text-center">${index + 1}</span>`;
+
+                listSiswa.innerHTML += `
+                    <li class="p-4 flex items-center justify-between hover:bg-gray-50">
+                        <div class="flex items-center gap-4">
+                            ${badge}
+                            <div>
+                                <p class="font-bold text-gray-800">${st.nama}</p>
+                                <p class="text-xs text-gray-500">Kelas ${st.kelas} • ${st.berat.toFixed(1)} kg</p>
+                            </div>
+                        </div>
+                        <div class="bg-eco-light text-eco-dark px-3 py-1 rounded-full font-bold text-sm">
+                            ${st.poin.toLocaleString('id-ID')} pts
+                        </div>
+                    </li>
+                `;
+            });
+
+            // Sort & Render Classes (All by Weight)
+            const topClasses = Object.values(classMap).sort((a, b) => b.berat - a.berat);
+            const listKelas = document.getElementById('list-top-kelas');
+            listKelas.innerHTML = '';
+
+            if(topClasses.length === 0) listKelas.innerHTML = '<li class="p-4 text-center text-gray-400">Belum ada data</li>';
+
+            topClasses.forEach((cl, index) => {
+                let w = index === 0 ? 'bg-eco text-white' : 'bg-gray-100 text-gray-700';
+                listKelas.innerHTML += `
+                    <li class="p-4 flex items-center justify-between hover:bg-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${w}">${index+1}</div>
+                            <span class="font-bold text-gray-800">${cl.kelas}</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-800">${cl.berat.toFixed(1)} kg</p>
+                            <p class="text-xs text-gray-500">${cl.poin.toLocaleString('id-ID')} poin</p>
+                        </div>
+                    </li>
+                `;
+            });
+        }
+
+        // --- RENDER AWARDS ---
+        function renderAwards() {
+            const container = document.getElementById('awards-container');
+            container.innerHTML = '';
+
+            if(wasteData.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center text-gray-400 py-10">Kumpulkan data untuk membuka penghargaan!</div>';
+                return;
+            }
+
+            // Calculations for awards
+            let studentMap = {};
+            let classMap = {};
+            let organicKing = { nama: '', kelas: '', berat: 0 };
+            
+            wasteData.forEach(item => {
+                // For Pengumpul Terbanyak
+                const sKey = item.nama + '|' + item.kelas;
+                if(!studentMap[sKey]) studentMap[sKey] = 0;
+                studentMap[sKey] += item.berat;
+
+                // For Kelas Terbersih
+                if(!classMap[item.kelas]) classMap[item.kelas] = 0;
+                classMap[item.kelas] += item.berat;
+
+                // For Siswa Peduli Lingkungan (Max Organik)
+                if(item.jenis === 'Organik') {
+                    if(item.berat > organicKing.berat) {
+                        organicKing = { nama: item.nama, kelas: item.kelas, berat: item.berat };
+                    }
+                }
+            });
+
+            // Find max student
+            let maxSiswa = { name: '-', weight: 0, kelas: '-' };
+            for(let key in studentMap) {
+                if(studentMap[key] > maxSiswa.weight) {
+                    let parts = key.split('|');
+                    maxSiswa = { name: parts[0], kelas: parts[1], weight: studentMap[key] };
+                }
+            }
+
+            // Find max class
+            let maxKelas = { kelas: '-', weight: 0 };
+            for(let k in classMap) {
+                if(classMap[k] > maxKelas.weight) {
+                    maxKelas = { kelas: k, weight: classMap[k] };
+                }
+            }
+
+            // Award 1: Pengumpul Terbanyak
+            container.innerHTML += createAwardCard(
+                'Pengumpul Terbanyak', 
+                'Siswa dengan total berat sampah tertinggi.',
+                'fa-crown', 'bg-yellow-500', 'bg-yellow-100', 'text-yellow-600',
+                maxSiswa.name, `Kelas ${maxSiswa.kelas}`, `${maxSiswa.weight.toFixed(1)} kg`
+            );
+
+            // Award 2: Kelas Terbersih
+            container.innerHTML += createAwardCard(
+                'Kelas Terbersih', 
+                'Kelas dengan partisipasi sampah tertinggi.',
+                'fa-school-flag', 'bg-ocean', 'bg-ocean-light', 'text-ocean-dark',
+                maxKelas.kelas, 'Total Kumulatif', `${maxKelas.weight.toFixed(1)} kg`
+            );
+
+            // Award 3: Peduli Lingkungan
+            container.innerHTML += createAwardCard(
+                'Pahlawan Kompos', 
+                'Setor sampah organik terbanyak dalam satu kali.',
+                'fa-seedling', 'bg-eco', 'bg-eco-light', 'text-eco-dark',
+                organicKing.nama || '-', organicKing.kelas ? `Kelas ${organicKing.kelas}` : '-', `${organicKing.berat.toFixed(1)} kg`
+            );
+        }
+
+        function createAwardCard(title, desc, icon, bgIconClass, bgLightClass, textDarkClass, winnerTitle, winnerSub, winnerStat) {
+            return `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-full h-2 ${bgIconClass}"></div>
+                    <div class="w-20 h-20 mx-auto rounded-full ${bgLightClass} ${textDarkClass} flex items-center justify-center text-4xl mb-4 transform group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid ${icon}"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-gray-800 mb-1">${title}</h3>
+                    <p class="text-xs text-gray-500 mb-6 px-4">${desc}</p>
+                    
+                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Pemenang Saat Ini</p>
+                        <p class="font-bold text-lg text-gray-800 truncate">${winnerTitle}</p>
+                        <div class="flex justify-between items-center mt-2 text-sm">
+                            <span class="text-gray-500">${winnerSub}</span>
+                            <span class="font-bold ${textDarkClass}">${winnerStat}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER CHARTS ---
+        function safeCreateChart(ctxId, config) {
+            const ctx = document.getElementById(ctxId);
+            if(!ctx) return;
+            if (charts[ctxId]) {
+                charts[ctxId].destroy();
+            }
+            charts[ctxId] = new Chart(ctx, config);
+        }
+
+        function renderMiniCharts() {
+            // Data for Doughnut (Dashboard)
+            let typeMap = { 'Organik':0, 'Anorganik':0, 'Plastik':0, 'Kertas':0, 'Logam':0 };
+            
+            // Data for Line (Last 7 Days)
+            let last7Days = [];
+            let dateMap = {};
+            for(let i=6; i>=0; i--) {
+                let d = new Date();
+                d.setDate(d.getDate() - i);
+                let dateStr = d.toISOString().split('T')[0];
+                last7Days.push(dateStr);
+                dateMap[dateStr] = 0;
+            }
+
+            wasteData.forEach(item => {
+                if(typeMap[item.jenis] !== undefined) typeMap[item.jenis] += item.berat;
+                if(dateMap[item.tanggal] !== undefined) dateMap[item.tanggal] += item.berat;
+            });
+
+            // Dash Doughnut
+            safeCreateChart('dashDoughnutChart', {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(typeMap),
+                    datasets: [{
+                        data: Object.values(typeMap),
+                        backgroundColor: [COLOR_PALETTE['Organik'], COLOR_PALETTE['Anorganik'], COLOR_PALETTE['Plastik'], COLOR_PALETTE['Kertas'], COLOR_PALETTE['Logam']],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+
+            // Dash Line
+            safeCreateChart('dashLineChart', {
+                type: 'line',
+                data: {
+                    labels: last7Days.map(d => d.substring(5)), // MM-DD
+                    datasets: [{
+                        label: 'Berat (kg)',
+                        data: Object.values(dateMap),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function renderStats() {
+            if(document.getElementById('page-statistik').classList.contains('hidden')) return;
+
+            // 1. Pie Chart - Jenis Sampah
+            let typeMap = { 'Organik':0, 'Anorganik':0, 'Plastik':0, 'Kertas':0, 'Logam':0 };
+            // 2. Bar Chart - Kelas
+            let classMap = {};
+            // 3. Line Chart - Harian (Semua data tersedia, sort urut tanggal)
+            let dateMap = {};
+
+            wasteData.forEach(item => {
+                if(typeMap[item.jenis] !== undefined) typeMap[item.jenis] += item.berat;
+                
+                if(!classMap[item.kelas]) classMap[item.kelas] = 0;
+                classMap[item.kelas] += item.berat;
+
+                if(!dateMap[item.tanggal]) dateMap[item.tanggal] = 0;
+                dateMap[item.tanggal] += item.berat;
+            });
+
+            // Pie Chart
+            safeCreateChart('statPieChart', {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(typeMap),
+                    datasets: [{
+                        data: Object.values(typeMap),
+                        backgroundColor: [COLOR_PALETTE['Organik'], COLOR_PALETTE['Anorganik'], COLOR_PALETTE['Plastik'], COLOR_PALETTE['Kertas'], COLOR_PALETTE['Logam']],
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Bar Chart Kelas
+            const classLabels = Object.keys(classMap).sort();
+            const classData = classLabels.map(k => classMap[k]);
+            safeCreateChart('statBarChart', {
+                type: 'bar',
+                data: {
+                    labels: classLabels,
+                    datasets: [{
+                        label: 'Total Sampah (kg)',
+                        data: classData,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Line Chart Tren (Sort Date)
+            const sortedDates = Object.keys(dateMap).sort();
+            const lineData = sortedDates.map(d => dateMap[d]);
+            safeCreateChart('statLineChart', {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: 'Total Sampah Harian (kg)',
+                        data: lineData,
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b981',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#10b981',
+                        pointRadius: 4,
+                        tension: 0.3
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
