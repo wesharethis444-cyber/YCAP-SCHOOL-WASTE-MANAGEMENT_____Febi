@@ -1,0 +1,2 @@
+# YCAP-SCHOOL-WASTE-MANAGEMENT_____Febi
+This is my application about YCAP SCHOOL WASTE MANAGAMENT
